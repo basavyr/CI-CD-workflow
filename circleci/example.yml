@@ -1,0 +1,98 @@
+version: 2.1
+
+jobs:
+  job-0-debian:
+    docker:
+      - image: "debian:latest"
+    steps:
+      - checkout
+      - run:
+          name: Installing updates and SUDO
+          command: "apt-get update && apt-get install -y sudo && rm -rf /var/lib/apt/lists/* && uname -a"
+      - run:
+          name: Installing updates and required apps
+          command: "apt-get update && sudo apt-get install -y g++ gcc cmake"
+      - run:
+          name: Test if the apps were installed ok
+          command: "g++ -v && cmake --version && which g++ && which cmake"
+      - run:
+          name: where are we
+          command: "pwd && ls"
+      - run:
+          name: build project and install
+          command: "mkdir -p build && cd build && CC=gcc CXX=g++ cmake -D CMAKE_INSTALL_PREFIX=../tarball/build/ .. && make && make install"
+      - run:
+          name: run IO test
+          command: "cd tarball/build/bin && ./io"
+      - run:
+          name: check if test is ok
+          command: "ls -la tarball/build/output"
+
+  job-1-ubuntu:
+    docker:
+      - image: "ubuntu:latest"
+        environment:
+          - TZ: Europe/Bucharest
+          - DEBIAN_FRONTEND: noninteractive
+    steps:
+      - checkout
+      - run:
+          name: Installing updates and SUDO
+          command: "apt-get update && apt-get install -y sudo && rm -rf /var/lib/apt/lists/* && uname -a"
+      - run:
+          name: "set env vars again"
+          command: |
+            echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections
+            echo export DEBIAN_FRONTEND=noninteractive >> $BASH_ENV
+            source $BASH_ENV
+      - run:
+          name: Installing updates and required apps
+          command: "apt-get update && sudo apt-get install -y g++ gcc cmake"
+      - run:
+          name: Test if the apps were installed ok
+          command: "g++ -v && cmake --version && which g++ && which cmake"
+      - run:
+          name: where are we
+          command: "pwd && ls"
+      - run:
+          name: build project and install
+          command: "mkdir -p build && cd build && CC=gcc CXX=g++ cmake -D CMAKE_INSTALL_PREFIX=../tarball/build/ .. && make && make install"
+      - run:
+          name: run IO test
+          command: "cd tarball/build/bin && ./io"
+      - run:
+          name: check if test is ok
+          command: "ls -la tarball/build/output"
+
+  job-2-centos:
+    docker:
+      - image: "centos:latest"
+    steps:
+      - checkout
+      - run:
+          name: "install C++ compilers "
+          command: dnf groupinstall -y "Development Tools" # installing only g++/gcc doesn't work on centos
+          ##without development tools, cmake will complain
+      # - run:
+      #     name: "install C++ compilers "
+      #     command: dnf groupinstall "Development Tools" # installing only g++/gcc doesn't work on centos
+      - run:
+          name: "install cmake "
+          command: yum install -y cmake
+      - run:
+          name: creates the build project
+          command: "mkdir -p build && cd build && CC=gcc CXX=g++ cmake -D CMAKE_INSTALL_PREFIX=../tarball/build ..&&make&&make install"
+      - run:
+          name: run IO test
+          command: "cd tarball/build/bin && ./io"
+      - run:
+          name: check if test is ok
+          command: "ls -la tarball/build/output"
+
+workflows:
+  version: 2.1
+  life-rips:
+    jobs:
+      - job-0-debian
+      - job-1-ubuntu
+      - job-2-centos

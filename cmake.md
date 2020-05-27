@@ -7,3 +7,6 @@ Because most of my C++ projects are built with CMake, a completely dedicated rep
 There are multiple links to various posts which help fixing issues while building a C++ project, but also some overall commands which provide a proper build environment.
 
 * Example of `CMakeLists.txt` (build recipes) found in the `cmake` directory.
+* Issues with cmake `@rpath` are discussed in detail:
+  * In this repo: [macos-devel-issues](https://github.com/basavyr/macos-devel-issues)
+  * On this doc file: [CMAKE RPATH](issues.md) 
