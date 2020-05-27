@@ -14,5 +14,6 @@ Read about each workflow implementation and actual documentation [here](docs.md)
 ## Content
 
 1. Documentation and sources - [here](docs.md) (`.pdf` version available as well.)
-2. Issues - [here](issues.md)
-3. About cmake- [here](cmake.md)
+2. CI/CD Issues & CircleCI in general - [here](issues.md)
+3. About CMake- [here](cmake.md)
+4. About GitHub Actions - [here](cmake.md)

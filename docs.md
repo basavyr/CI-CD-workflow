@@ -58,6 +58,8 @@ workflows:
 
 ### For a C++ project
 
+[This](http://gueepo.me/blog/simple-ci-for-cpp/) is a great example for setting up a CircleCI pipeline of a project developed with CMake. The setup process for a Docker container is nicely explained here. Installing updates and getting sudo ready for the OS is also described.
+
 1. Update the OS
 2. Install the sudo rights
 3. Get `g++/gcc` and `cmake` from the OS-specific app repository (like `apt` or `yum`)
@@ -87,3 +89,9 @@ Most of them are related to:
 ## Cmake
 
 Some information [here](cmake.md).
+
+## GitHub Actions
+
+There are some useful *starter* workflows available (e.g. [here](https://github.com/actions/starter-workflows/pull/47#issuecomment-537846624)) and there is also a dedicated repository to a workflow with the help of GitHub Actions (see [here](https://github.com/basavyr/effective-journey)).
+
+Check `github/` directory for some recipes on getting a workflow up and ready.
