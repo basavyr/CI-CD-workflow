@@ -1,0 +1,33 @@
+version: 2.1
+
+jobs:
+  # CENTOS
+  job-2-centos:
+    docker:
+      - image: "centos:latest"
+    steps:
+      - checkout
+      - run:
+          name: install updates
+          command: yum -y update && yum -y upgrade
+      - run:
+          name: install which package so we can check what is good
+          command: yum -y install which
+      - run:
+          name: install dev package
+          command: dnf groupinstall -y "Development Tools"
+      - run:
+          name: install python2 and python3 with dnf
+          command: dnf install -y python2 python3
+      - run:
+          name: install git
+          command: yum install -y git
+      - run:
+          name: install cmake
+          command: yum install -y cmake
+
+workflows:
+  version: 2.1
+  start-containers:
+    jobs:
+      - job-2-centos

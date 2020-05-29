@@ -17,3 +17,5 @@ Read about each workflow implementation and actual documentation [here](docs.md)
 2. CI/CD Issues & CircleCI in general - [here](issues.md)
 3. About CMake- [here](cmake.md)
 4. About GitHub Actions - [here](cmake.md)
+
+**Update**: Fast setup configuration scripts for Centos, Debian and Ubuntu containers added for CircleCI CI/CD workflow.

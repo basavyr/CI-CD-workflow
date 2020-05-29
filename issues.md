@@ -75,6 +75,34 @@ CC=gcc CXX=g++ cmake -D CMAKE_INSTALL_PREFIX=../tarball/build/ .. && make && mak
 
 Notice that in the command above, the project is also installed on the system.
 
+## Installing packages in *silent mode*
+
+### Ubuntu:latest container 
+
+When setting up a CircleCI pipeline, running the project inside a Ubuntu based container, especially in the official image from Docker Hub (e.q. `ubuntu:tag=latest`), it is possible to generate a **silent install** for every package desired, after updating the container to the latest packages with `apt-get update`.
+
+This is very useful when some install packages require user input - such thing is impossible on a cloud CI/CD pipeline like CircleCI.
+
+**Solution**: 
+
+* After configuring the docker image, doing the checkout of the current repository and setting up the `$DEBIAN_FRONTEND` environment variable, the [following command](https://github.com/SeleniumHQ/docker-selenium/blob/3f59708d29248752f1ba5c4b64297fb5c8fd9262/NodeChrome/Dockerfile#L23) should be added into the config script:
+
+```yml
+   - run:
+          name: install qqy
+          command: apt-get update -qqy && apt-get -qqy install
+```
+
+However, it is recommended to properly update the system beforehand, with the following command:
+
+```yml
+  - run:
+          name: Update and install sudo
+          command: "apt-get update && apt-get install -y sudo &&  rm -rf /var/lib/apt/lists/* "
+```
+
+This will also give sudo-access and make sure latest updates are present on the container.
+
 ## Getting sudo access
 
 ### Centos
@@ -98,6 +126,34 @@ The command for getting sudo right up and ready is:
 On centos, g++ is only available with `dng groupinstall "Development Tools"`
 
 Debian and Ubuntu work with `apt-get install -y g++ gcc`
+
+### Python 
+
+In order to get a Python development environment, simply install **Python2** and **Python3** via the command line, with the os-based package repository (e.g. `apt`, `yum`)
+
+```yml
+- run:
+    name: Install the required packages
+    command: "apt-get install -yqq g++ python python3"
+```
+
+## Getting a fast development pipeline ready for CI/CD in CircleCI
+
+There are some example config files in `circle` directory for setting up pipelines on three major platforms:
+
+* CentOS - [always latest](circleci/centos.yml)
+* Ubuntu - [always latest](circleci/ubuntu.yml)
+* Debian - [always latest](circleci/debian.yml)
+
+The scripts for them are as follow:
+
+```mermaid
+graph TB
+A[Pull docker image from Docker Hub <br> latest tag] --> B[checkout the working repo into the running container]
+B --> C[Update the package repository and get sudo access]
+C --> D[Installs dev packages: <br> gcc/g++, cmake,python,git]
+D --> E[Configure the project if built with CMake, or just compile the sources <br> and execute the scripts] 
+```
 
 ## @rpath - running the executable from the project tree
 
