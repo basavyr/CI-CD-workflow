@@ -60,6 +60,32 @@ workflows:
 
 [This](http://gueepo.me/blog/simple-ci-for-cpp/) is a great example for setting up a CircleCI pipeline of a project developed with CMake. The setup process for a Docker container is nicely explained here. Installing updates and getting sudo ready for the OS is also described.
 
+### Centos development process
+
+In order to install proper `C/C++` compiler into RHEL's CentOS8,  [this](https://stackoverflow.com/questions/55345373/how-to-install-gcc-g-8-on-centos) is a good guide for having access to the entire `Development Toolset`.
+
+CentOS 8 already comes with GCC 8.
+
+On CentOS 7, you can install GCC 8 from Developer Toolset. First you need to enable the Software Collections repository:
+
+```bash
+yum install centos-release-scl
+```
+
+Then you can install GCC 8 and its C++ compiler:
+
+```bash
+yum install devtoolset-8-gcc devtoolset-8-gcc-c++
+```
+
+To switch to a shell which defaults gcc and g++ to this GCC version, use:
+
+```bash
+scl enable devtoolset-8 -- bash
+```
+
+You need to wrap all commands under the scl call, so that the process environment changes performed by this command affect all subshells. For example, you could use the scl command to invoke a shell script that performs the required actions.
+
 1. Update the OS
 2. Install the sudo rights
 3. Get `g++/gcc` and `cmake` from the OS-specific app repository (like `apt` or `yum`)
