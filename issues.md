@@ -184,3 +184,43 @@ However, a list of sources is shown below:
 10. https://stackoverflow.com/questions/40146437/how-to-set-multiple-rpath-directories-using-cmake-on-macos - How to set multiple RPATH directories using CMake on MacOS
 
 Since the rpath is chosen for OSX, the executable is able to run from the project install, finding the shared libraries that it needs.
+
+## Creating artifacts on CircleCI
+
+In the configuration file, it is possible to set commands for generating files for later download, related to the build process of the source project (these files are called **artifacts**).
+
+In order to configure artifact generation in a job, one can use the following command (based on the documentation on creating artifacts which can be accessed [here](https://circleci.com/docs/2.0/artifacts/))
+
+```yml
+- store_artifacts:
+    path: /tmp/build-py2_tarball.tar.gz
+    destination: debian-build-py2_tarball.tar.gz
+- store_artifacts:
+    path: /tmp/build-py3_tarball.tar.gz
+    destination: debian-build-py3_tarball.tar.gz
+```
+
+### Issue with uploading artifacts on Ubuntu and Debian official images
+
+When attempting to generate artifacts from the [python bindings project](https://github.com/basavyr/python-bindings), the following error is thrown by the CircleCI pipeline process:
+
+```bash
+Uploading /tmp/build-py3_tarball.tar.gz to centos-build-py3_tarball.tar.gz
+Uploading /tmp/build-py3_tarball.tar.gz (129 kB): 
+FAILED with error RequestError: send request failed
+caused by: Put https://circle-production-customer-artifacts.s3.amazonaws.com/picard/5ed121566591d035258f7d7e/5ee09798f3dc517ecdca1fdb-0-build/artifacts/centos-build-py3_tarball.tar.gz: x509: certificate signed by unknown authority
+```
+
+There are some posts which discuss about this issue here:
+
+* https://discuss.circleci.com/t/requesterror-x509-certificate-signed-by-unknown-authority-on-attaching-workspace-when-using-a-certain-job-image/28057
+* [Resolve "Certificate Signed By Unknown Authority" error in Alpine images](https://support.circleci.com/hc/en-us/articles/360016505753-Resolve-Certificate-Signed-By-Unknown-Authority-error-in-Alpine-images?flash_digest=39b76521a337cecacac0cc10cb28f3747bb5fc6a)
+
+
+**Solution** - just install the missing Certificates (`ca-certificates`) when configuring the Docker image.
+
+```yml
+- run:
+    name: installs the certificates
+    command: apt-get install -y ca-certificates #this allows image to have a valid for being able to upload artifacts to an external server
+```
