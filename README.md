@@ -20,6 +20,7 @@ Read about each workflow implementation and actual documentation [here](docs.md)
 2. CI/CD Issues & CircleCI in general - [here](issues.md)
 3. About CMake- [here](cmake.md)
 4. About GitHub Actions - [here](cmake.md)
+5. About Azure DevOps - Pipelines - [here](azurepipelines.md)
 
 **Update**: Fast setup configuration scripts for Centos, Debian and Ubuntu containers added for CircleCI CI/CD workflow.
 
@@ -31,4 +32,3 @@ C++ and Python projects integrated with **Azure Pipelines** were also added into
 * [Histogram maker](https://github.com/basavyr/histogram-maker)
 
 *Histogram maker* has also implemented build/configure process with CMake. Issues and documentation will be provided with further development progress on the actual projects. (e.g. issues, pull requests).
-

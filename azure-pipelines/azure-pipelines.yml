@@ -1,0 +1,68 @@
+# trigger:
+# - main
+
+# parameters:
+# - name: pool_image
+#   displayName: Pool Images
+#   type: string
+#   default: ubuntu-latest
+#   values:
+#   - ubuntu-latest
+#   - macOS-latest
+
+variables:
+  latex-linux: book_linux
+  latex-macos: book_macos
+  os-mac: macOS-latest
+  os-linux: ubuntu-latest
+
+jobs:
+- job: Latex_Build_Ubuntu
+  displayName: Build latex project on Linux
+  pool:
+    vmImage: $(os-linux)
+
+  steps:
+  - script: |
+      sudo apt update
+      sudo apt-get install -y texlive-latex-extra 
+    displayName: Update system + install latex package
+  
+  - script: |
+      pdflatex main.tex
+      bibtex main.aux
+      pdflatex main.tex
+      pdflatex main.tex
+      ls -l
+    displayName: Compile the main latex file with pdflatex
+
+  - publish: main.pdf
+    artifact: $(latex-linux)
+
+- job: Latex_Build_macOS
+  displayName: Build latex project on macOS
+  pool:
+    vmImage: $(os-mac)
+
+  steps:
+  - script: |
+      brew install --cask mactex
+      eval "$(/usr/libexec/path_helper)"
+    displayName: Install mactex
+  
+  - script: |
+      tlmgr --help
+      tlmgr update --all
+    displayName: test tlmgr
+  
+  - script: |
+      ls -l
+      xelatex main.tex
+      bibtex main.aux
+      xelatex main.tex
+      xelatex main.tex
+      ls -l
+    displayName: Build project with xelatex
+
+  # - publish: main.pdf
+  #   artifact: $(latex-macos)

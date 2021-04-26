@@ -1,0 +1,33 @@
+variables:
+  latex-pdf-file: latex-pdf-file
+
+jobs:
+- job: latex
+  displayName: Generate `.pdf` from latex file 
+  pool:
+    vmImage: 'ubuntu-18.04'
+
+  steps:
+  - script: uname -a
+    displayName: Test the system integrity
+
+  - script: ls -la
+    displayName: Test the repository structure
+
+  - script: sudo apt-get install -y texlive-latex-recommended
+    displayName: Install pdflatex on the VM
+  
+  - script: |
+      ls
+      pdflatex sample.tex
+      ls
+    displayName: Compile the latex sample file
+  
+  - script: |
+      cp sample.pdf /tmp
+      cd /tmp
+      ls -la
+    displayName: Compile the latex sample file
+
+  - publish: /tmp/sample.pdf
+    artifact: $(latex-pdf-file)

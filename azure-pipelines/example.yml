@@ -1,0 +1,98 @@
+
+variables:
+  plot_artifact_macos_mojave: plot-bundle-macos-mojave
+  plot_artifact_macos_catalina: plot-bundle-macos-catalina
+  plot_artifact_ubuntu: plot-bundle-ubuntu
+  install_artifact_macos_mojave: install-bundle-macos-mojave
+  install_artifact_macos_catalina: install-bundle-macos-catalina
+  install_artifact_ubuntu: install-bundle-ubuntu
+jobs:
+- job: Job1
+  displayName: Job-1 macOS Catalina
+  pool:
+    vmImage: "macos-latest"
+  variables:
+    os1: darwin
+  steps:
+    - script: mkdir -p build && cd build && cmake -D CMAKE_INSTALL_PREFIX=../install ..
+      displayName: build with cmake
+    - script: cd build &&  make install
+      displayName: install
+    - script: cd install && cd python-bindings && cd lib* && python3 randoms.py
+      displayName: runs the random script
+    - script: cd install && cd python-bindings && cd lib* && python3 histogram.py
+      displayName: runs the histogram script
+    - script: cd install && cd python-bindings  && tar -zcvf plot-bundle-$OS1.tar.gz output && cp plot-bundle-$OS1.tar.gz /tmp
+      displayName: creates tarball with histograms and copies to tmp $(os1)
+    - script: cd install && cd python-bindings  && tar -zcvf logs-$OS1.tar.gz logs && cp logs-$OS1.tar.gz /tmp
+      displayName: creates tarball with logs and copies to tmp
+    - script: cd install && cd python-bindings  && rm -rf output && rm -rf logs
+      displayName: clears the plot storage and logs before making installer bundle
+    - script: tar -zcvf install-bundle-$OS1.tar.gz install && cp install-bundle-$OS1.tar.gz /tmp
+      displayName: creates tarball with install dir and copies to tmp
+    - publish: /tmp/plot-bundle-$(os1).tar.gz
+      artifact: $(plot_artifact_macos_catalina)
+    - publish: /tmp/logs-$(os1).tar.gz
+      artifact: logs-job1
+    - publish: /tmp/install-bundle-$(os1).tar.gz
+      artifact: $(install_artifact_macos_catalina)
+
+- job: Job2
+  displayName: Job-2 macOS Mojave
+  pool:
+    vmImage: "macos-10.14"
+  variables:
+    os2: darwin
+  steps:
+    - script: mkdir -p build && cd build && cmake -D CMAKE_INSTALL_PREFIX=../install ..
+      displayName: build with cmake
+    - script: cd build &&  make install
+      displayName: install
+    - script: cd install && cd python-bindings && cd lib* && python3 randoms.py
+      displayName: runs the random script
+    - script: cd install && cd python-bindings && cd lib* && python3 histogram.py
+      displayName: runs the histogram script
+    - script: cd install && cd python-bindings  && tar -zcvf plot-bundle-$OS2.tar.gz output && cp plot-bundle-$OS2.tar.gz /tmp
+      displayName: creates tarball with histograms and copies to tmp
+    - script: cd install && cd python-bindings  && tar -zcvf logs-$OS2.tar.gz logs && cp logs-$OS2.tar.gz /tmp
+      displayName: creates tarball with logs and copies to tmp
+    - script: cd install && cd python-bindings  && rm -rf output && rm -rf logs
+      displayName: clears the plot storage and logs before making installer bundle
+    - script: tar -zcvf install-bundle-$OS2.tar.gz install && cp install-bundle-$OS2.tar.gz /tmp
+      displayName: creates tarball with install dir and copies to tmp
+    - publish: /tmp/plot-bundle-$(os2).tar.gz
+      artifact: $(plot_artifact_macos_mojave)
+    - publish: /tmp/logs-$(os2).tar.gz
+      artifact: logs-job2
+    - publish: /tmp/install-bundle-$(os2).tar.gz
+      artifact: $(install_artifact_macos_mojave)
+    
+- job: Job3
+  displayName: Job-3 Ubuntu
+  pool:
+    vmImage: "ubuntu-latest"
+  variables:
+    os3: linux
+  steps:
+    - script: mkdir -p build && cd build && cmake -D CMAKE_INSTALL_PREFIX=../install ..
+      displayName: build with cmake
+    - script: cd build &&  make install
+      displayName: install
+    - script: cd install && cd python-bindings && cd lib* && python3 histogram.py
+      displayName: runs the histogram script
+    - script: cd install && cd python-bindings  && tar -zcvf plot-bundle-$OS3.tar.gz output && cp plot-bundle-$OS3.tar.gz /tmp
+      displayName: creates tarball with histograms and copies to tmp
+    - script: cd install && cd python-bindings  && tar -zcvf logs-$OS3.tar.gz logs && cp logs-$OS3.tar.gz /tmp
+      displayName: creates tarball with logs and copies to tmp
+    - script: cd install && cd python-bindings  && rm -rf output && rm -rf logs
+      displayName: clears the plot storage and logs before making installer bundle
+    - script: tar -zcvf install-bundle-$OS3.tar.gz install && cp install-bundle-$OS3.tar.gz /tmp
+      displayName: creates tarball with install dir and copies to tmp
+    - script: cd /tmp && ls
+      displayName: checks bundles
+    - publish: /tmp/plot-bundle-$(os3).tar.gz
+      artifact: $(plot_artifact_ubuntu)
+    - publish: /tmp/logs-$(os3).tar.gz
+      artifact: logs-job3
+    - publish: /tmp/install-bundle-$(os3).tar.gz
+      artifact: $(install_artifact_ubuntu)
