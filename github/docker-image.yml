@@ -1,0 +1,69 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+env:
+  imageName: ariana_image
+  containerName: ariana_container
+  artifactName: logs
+  dockerImageName: pyenv-ubuntu
+  dockerImageTag: latest
+  logFileName: dfcti_system_logs.log
+  logFilePath: /var/log/
+
+jobs:
+
+  build-ubuntu:
+    name: Build on ubuntu+docker
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build the Docker image
+      run: docker build . -t ${{env.imageName}}
+    - name: Create new container from image
+      run: docker container create --name ${{env.containerName}} ${{env.imageName}}
+    - name: Start the container from the built image
+      run: docker start -i ${{env.containerName}}
+    - name: Copy log file from container to the host machine
+      run: sudo docker cp ${{env.containerName}}:${{env.logFilePath}}${{env.logFileName}} ${{env.logFilePath}}
+    - name: Makes the files available
+      run: sudo chmod -R +x ${{env.logFilePath}}
+    - name: Check the file's content
+      run: cat ${{env.logFilePath}}${{env.logFileName}}
+    - uses: actions/upload-artifact@v2
+      with:
+        name: ${{env.artifactName}}
+        path: ${{env.logFilePath}}${{env.logFileName}}
+        if-no-files-found: warn
+    
+  # build-docker:
+  #   name: Build on ubuntu+docker x2
+  #   runs-on: ubuntu-latest
+  #   # container:
+  #   #   image: basavyr/pyenv-ubuntu:latest
+  #   steps:
+  #   - name: login
+  #     uses: docker/login-action@v1
+  #     with:
+  #       username: ${{ secrets.DOCKERHUB_USERNAME }}
+  #       password: ${{ secrets.DOCKERHUB_TOKEN }}
+  #   - name: run
+  #     run: |
+  #       docker pull basavyr/pyenv-ubuntu
+  #       docker ps -a
+
+
+  # container-build:
+  #   name: Build on ubuntu+docker x2
+  #   runs-on: ubuntu-latest
+  #   container:
+  #     image: node:latest
+  #   steps:
+  #   - name: Log the node version
+  #     run: |
+  #       node -v
+  #       cat /etc/os-release 
