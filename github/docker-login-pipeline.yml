@@ -1,0 +1,17 @@
+  docker-build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: login
+      uses: docker/login-action@v1
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+    - name: Starting 
+        run: |
+          docker pull basavyr/pyenv-ubuntu
+          docker images | grep -E '20.04' | awk '{print $3}' | xargs -I{} docker run -td --name ubuntuOS {} /bin/bash
+          docker ps -a
+          docker exec ubuntuOS ls -la
+          docker exec ubuntuOS uname -a
+          docker ps | grep -E '(^|\s)ubuntuOS$' | awk '{print $1}' | xargs docker stop | xargs docker rm
+          docker ps -a
